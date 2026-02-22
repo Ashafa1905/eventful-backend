@@ -1,21 +1,19 @@
-// main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load .env file
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // CORS for local dev / static frontend
+  // CORS for frontend
   app.enableCors({
-    origin: '*', // For prod, set to your domain(s)
+    origin: '*',
     methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization',
-    credentials: false,
   });
 
   // Global validation
@@ -24,7 +22,7 @@ async function bootstrap() {
   // Swagger
   const config = new DocumentBuilder()
     .setTitle('Eventful API')
-    .setDescription('API documentation for Eventful Application')
+    .setDescription('API docs')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -32,11 +30,16 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  // Get PORT from environment or default to 3000
-  const PORT = process.env.PORT || 3000;
+  // MUST use Render's PORT environment variable
+  const port = process.env.PORT;
+  console.log(port)
+  if (!port) {
+    console.error("ERROR: Render did not provide a PORT environment variable.");
+    process.exit(1);
+  }
 
-  await app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  await app.listen(parseInt(port, 10), () => {
+    console.log(`Server running on port ${port}`);
   });
 }
 
