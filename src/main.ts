@@ -3,6 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Load .env file
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,7 +32,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(3000);
-  console.log('🚀 Eventful API running on http://localhost:3000');
+  // Get PORT from environment or default to 3000
+  const PORT = process.env.PORT || 3000;
+
+  await app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 }
+
 bootstrap();
